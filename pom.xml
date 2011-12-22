@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.example</groupId>
     <version>1.0-SNAPSHOT</version>
-    <artifactId>force-rest-jax-rs</artifactId>
+    <artifactId>dbc-api</artifactId>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -25,7 +25,36 @@
             <version>4.10</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.force.api</groupId>
+            <artifactId>force-rest-api</artifactId>
+            <version>0.0.8</version>
+        </dependency>
+        <dependency>
+            <groupId>com.inamik</groupId>
+            <artifactId>inamik-tableformatter</artifactId>
+            <version>0.96.2</version>
+        </dependency>
     </dependencies>
+    
+    <repositories>
+    	<repository>
+    		<id>forcerestapi</id>
+    		<name>Github repo for force-rest-api</name>
+    		<url>http://jesperfj.github.com/force-rest-api/repository/</url>
+    		<snapshots>
+    			<enabled>false</enabled>
+    		</snapshots>
+    	</repository>
+    	<repository>
+    		<id>inamik-tableformatter</id>
+    		<name>Github repo for tableformatter</name>
+    		<url>http://jesperfj.github.com/inamik-tableformatter/repository/</url>
+    		<snapshots>
+    			<enabled>false</enabled>
+    		</snapshots>
+    	</repository>
+    </repositories>
 
     <build>
         <plugins>
