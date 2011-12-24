@@ -1,0 +1,87 @@
+#!/bin/bash
+
+# Needed for urlencode
+export LANG=C
+
+
+DBC_HOME=$HOME/.dbc
+
+if [ -z "$DBC_URL" ] ; then
+    DBC_URL="https://dbc-api.herokuapp.com"
+fi
+
+if [ ! -e $DBC_HOME ] ; then
+	mkdir $DBC_HOME
+fi
+
+if [ ! -d $DBC_HOME ] ; then
+	echo "Error: $DBC_HOME is not a directory"
+	exit 1
+fi
+
+urlencode() {
+	arg="$1"
+	i="0"
+	while [ "$i" -lt ${#arg} ]; do
+		c=${arg:$i:1}
+		if echo "$c" | grep -q '[a-zA-Z/:_\.\-]'; then
+			echo -n "$c"
+		else
+			echo -n "%"
+			printf "%X" "'$c'"
+		fi
+		i=$((i+1))
+	done
+}
+
+key() {
+	echo $1 > $DBC_HOME/apikey
+	chmod go-rwX $DBC_HOME/apikey
+	echo "API key set"
+}
+
+query() {
+	QUERY=`urlencode "$@"`
+	curl "$DBC_URL/data/query?database=$DATABASE&q=$QUERY" -H "Authorization: $APIKEY"
+}
+
+use() {
+	echo $1 > $DBC_HOME/database
+	echo "Database set to $1"
+}
+
+if [ -e $DBC_HOME/apikey ] ; then
+	APIKEY=`cat $DBC_HOME/apikey`
+fi
+
+if [ -e $DBC_HOME/database ] ; then
+	DATABASE=`cat $DBC_HOME/database`
+fi
+	
+if [ -z "$APIKEY" ] && [ "$1" != "key" ] ; then
+	echo "You must set an api key with 'dbc key <apikey>' before you can run any commands."
+	echo "Get the key from https://dbconsole.herokuapp.com/user"
+	exit 1
+fi
+
+if [ -z "$DATABASE" ] && [ "$1" != "use" ] ; then
+	echo "You must set a database with 'dbc use <database>' before you can run any commands."
+	echo "Configure your databases at https://dbconsole.herokuapp.com"
+	exit 1
+fi
+
+CMD=$1
+shift
+
+case $CMD in 
+"query")
+	query "$@"
+	;;
+"key")
+	key "$@"
+	;;
+"use")
+	use "$@"
+	;;
+esac
+
