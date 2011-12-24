@@ -19,6 +19,28 @@ if [ ! -d $DBC_HOME ] ; then
 	exit 1
 fi
 
+if [ -e $DBC_HOME/apikey ] ; then
+	APIKEY=`cat $DBC_HOME/apikey`
+fi
+
+if [ -e $DBC_HOME/database ] ; then
+	DATABASE=`cat $DBC_HOME/database`
+fi
+	
+if [ -z "$APIKEY" ] && [ "$1" != "key" ] ; then
+	echo "You must set an api key with 'dbc key <apikey>' before you can run any commands."
+	echo "Get the key from https://dbconsole.herokuapp.com/user"
+	exit 1
+fi
+
+if [ -z "$DATABASE" ] && [ "$1" != "use" ] ; then
+	echo "You must set a database with 'dbc use <database>' before you can run any commands."
+	echo "Configure your databases at https://dbconsole.herokuapp.com"
+	exit 1
+fi
+
+
+# From: http://blogs.gnome.org/shaunm/2009/12/05/urlencode-and-urldecode-in-sh/
 urlencode() {
 	arg="$1"
 	i="0"
@@ -40,35 +62,34 @@ key() {
 	echo "API key set"
 }
 
-query() {
-	QUERY=`urlencode "$@"`
-	curl "$DBC_URL/data/query?database=$DATABASE&q=$QUERY" -H "Authorization: $APIKEY"
-}
-
 use() {
-	echo $1 > $DBC_HOME/database
+	urlencode "$1" > $DBC_HOME/database
 	echo "Database set to $1"
 }
 
-if [ -e $DBC_HOME/apikey ] ; then
-	APIKEY=`cat $DBC_HOME/apikey`
-fi
+query() {
+	QUERY=`urlencode "$@"`
+	curl -s "$DBC_URL/data/$DATABASE/query?q=$QUERY" -H "Authorization: $APIKEY"
+}
 
-if [ -e $DBC_HOME/database ] ; then
-	DATABASE=`cat $DBC_HOME/database`
-fi
-	
-if [ -z "$APIKEY" ] && [ "$1" != "key" ] ; then
-	echo "You must set an api key with 'dbc key <apikey>' before you can run any commands."
-	echo "Get the key from https://dbconsole.herokuapp.com/user"
-	exit 1
-fi
+describe() {
+	curl -s "$DBC_URL/data/$DATABASE/sobjects/$1" -H "Authorization: $APIKEY"
+}
 
-if [ -z "$DATABASE" ] && [ "$1" != "use" ] ; then
-	echo "You must set a database with 'dbc use <database>' before you can run any commands."
-	echo "Configure your databases at https://dbconsole.herokuapp.com"
-	exit 1
-fi
+usage() {
+	cat <<EOF
+Usage: $0 COMMAND [parameters]
+
+Commands:
+
+  key APIKEY         # Save API key. Required before you can run other commands
+  use DATABASE       # Set which database to use
+  query "QUERY"      # Execute a SOQL query. It's best to enclose the query in double or single quotes
+  describe [SOBJECT] # Describe an sObject. Run with no argument to get a list of all sObjects
+
+EOF
+}
+
 
 CMD=$1
 shift
@@ -80,8 +101,14 @@ case $CMD in
 "key")
 	key "$@"
 	;;
+"describe")
+	describe "$@"
+	;;
 "use")
 	use "$@"
+	;;
+*)
+	usage
 	;;
 esac
 
