@@ -2,6 +2,7 @@ package heroku.dbcapi.resources;
 
 import heroku.dbcapi.DatabaseLink;
 import heroku.dbcapi.Env;
+import heroku.dbcapi.Svc;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -32,7 +33,6 @@ import com.inamik.utils.TableFormatter;
 @Path("/data/{database}")
 public class RESTServices {
 
-	static ForceApi coredb = new ForceApi(new ApiConfig().setForceURL(Env.FORCE_COREDB_URL));
 	static ApiConfig CONFIG = new ApiConfig().setClientId(Env.LINK_OAUTH_KEY).setClientSecret(Env.LINK_OAUTH_SECRET);
 	
 	// hack
@@ -46,7 +46,7 @@ public class RESTServices {
 		System.out.println("query: "+q);
 		ApiSession session = apiKeyToAccessToken.get(apiKey+":"+database);
 		if(session == null) {
-			String refreshToken = coredb.query("SELECT token__c FROM database__c WHERE name='"+database+"' AND developer__r.apiKey__c='"+apiKey+"'", DatabaseLink.class).getRecords().get(0).getToken();
+			String refreshToken = Svc.coredb.query("SELECT token__c FROM database__c WHERE name='"+database+"' AND developer__r.apiKey__c='"+apiKey+"'", DatabaseLink.class).getRecords().get(0).getToken();
 			session = Auth.refreshOauthTokenFlow(CONFIG, refreshToken);
 			apiKeyToAccessToken.put(apiKey+":"+database, session);
 		}
@@ -83,7 +83,7 @@ public class RESTServices {
 	public StreamingOutput describeGlobal(@PathParam("database") String database, @HeaderParam("Authorization") String apiKey) {
 		ApiSession session = apiKeyToAccessToken.get(apiKey+":"+database);
 		if(session == null) {
-			String refreshToken = coredb.query("SELECT token__c FROM database__c WHERE name='"+database+"' AND developer__r.apiKey__c='"+apiKey+"'", DatabaseLink.class).getRecords().get(0).getToken();
+			String refreshToken = Svc.coredb.query("SELECT token__c FROM database__c WHERE name='"+database+"' AND developer__r.apiKey__c='"+apiKey+"'", DatabaseLink.class).getRecords().get(0).getToken();
 			session = Auth.refreshOauthTokenFlow(CONFIG, refreshToken);
 			apiKeyToAccessToken.put(apiKey+":"+database, session);
 		}
@@ -115,7 +115,7 @@ public class RESTServices {
 	public StreamingOutput describeSObject(@PathParam("database") String database, @PathParam("sobject") String sobject, @HeaderParam("Authorization") String apiKey) {
 		ApiSession session = apiKeyToAccessToken.get(apiKey+":"+database);
 		if(session == null) {
-			String refreshToken = coredb.query("SELECT token__c FROM database__c WHERE name='"+database+"' AND developer__r.apiKey__c='"+apiKey+"'", DatabaseLink.class).getRecords().get(0).getToken();
+			String refreshToken = Svc.coredb.query("SELECT token__c FROM database__c WHERE name='"+database+"' AND developer__r.apiKey__c='"+apiKey+"'", DatabaseLink.class).getRecords().get(0).getToken();
 			session = Auth.refreshOauthTokenFlow(CONFIG, refreshToken);
 			apiKeyToAccessToken.put(apiKey+":"+database, session);
 		}

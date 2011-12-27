@@ -63,8 +63,17 @@ key() {
 }
 
 use() {
-	urlencode "$1" > $DBC_HOME/database
-	echo "Database set to $1"
+	if [ -z "$@" ] ; then
+		echo -n "Current database: " | cat - $DBC_HOME/database
+		echo
+		echo "Your linked databases:"
+		echo
+		curl -s "$DBC_URL/databases" -H "Authorization: $APIKEY"
+		
+	else
+		urlencode "$1" > $DBC_HOME/database
+		echo "Database set to $1"
+	fi
 }
 
 query() {
@@ -83,7 +92,8 @@ Usage: $0 COMMAND [parameters]
 Commands:
 
   key APIKEY         # Save API key. Required before you can run other commands
-  use DATABASE       # Set which database to use
+  use [DATABASE]     # Set which database to use. Run with no argument to see current database
+                     # and list of available databases
   query "QUERY"      # Execute a SOQL query. It's best to enclose the query in double or single quotes
   describe [SOBJECT] # Describe an sObject. Run with no argument to get a list of all sObjects
 
