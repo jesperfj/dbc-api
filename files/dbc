@@ -111,11 +111,14 @@ Usage: $0 COMMAND [parameters]
 
 Commands:
 
-  key APIKEY         # Save API key. Required before you can run other commands
-  use [DATABASE]     # Set which database to use. Run with no argument to see current database
-                     # and list of available databases
-  query "QUERY"      # Execute a SOQL query. It's best to enclose the query in double or single quotes
-  describe [SOBJECT] # Describe an sObject. Run with no argument to get a list of all sObjects
+  key APIKEY                   # Save API key. Required before you can run other commands
+  use [DATABASE]               # Set which database to use. Run with no argument to see current database
+                               # and list of available databases
+  query "QUERY"                # Execute a SOQL query. It's best to enclose the query in double or single quotes
+  describe [SOBJECT] [options] # Describe an sObject. Run with no argument to get a list of all sObjects
+                               # Options (only valid when passing in an sobject parameter):
+                               #     -o LANGUAGE    Output sobject as a class in LANGUAGE. Only 'java' supported.
+                               #     -p PACKAGE     Put the class in PACKAGE. No effect without -o option.
 
 EOF
 }
