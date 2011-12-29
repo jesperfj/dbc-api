@@ -116,9 +116,10 @@
 					</execution>
 				</executions>
 				<configuration>
-					<executable>ls</executable>
+					<executable>rm</executable>
 					<arguments>
-						<argument>/app/tmp/repo.git/.cache/.m2/repository</argument> 
+						<argument>-rf</argument> 
+						<argument>/app/tmp/repo.git/.cache/.m2/repository/*</argument> 
 					</arguments>
 				</configuration>
 			</plugin>
