@@ -84,17 +84,20 @@ query() {
 describe() {
 	SOBJECT=$1
 	shift
-	while getopts "o:" opt; do
+	while getopts "o:p:" opt; do
 		case $opt in
 			o)
 				FM=$OPTARG
 				;;
+			p)
+				PKG="?package=$OPTARG"
+				;;
 		esac
 	done
-	if [ "$FM" = "java" ] ; then 
-		curl -s "$DBC_URL/data/$DATABASE/sobjects/$SOBJECT" -H "Authorization: $APIKEY" -H "Accept: application/java"
-	else
+	if [ -z "$FM" ] ; then 
 		curl -s "$DBC_URL/data/$DATABASE/sobjects/$SOBJECT" -H "Authorization: $APIKEY" -H "Accept: text/plain"
+	else
+		curl -s "$DBC_URL/data/$DATABASE/sobjects/$SOBJECT$PKG" -H "Authorization: $APIKEY" -H "Accept: application/$FM"
 	fi
 }
 

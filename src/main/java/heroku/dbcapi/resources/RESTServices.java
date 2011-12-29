@@ -141,13 +141,13 @@ public class RESTServices {
 	@GET
 	@Path("/sobjects/{sobject}")
 	@Produces("application/java")
-	public StreamingOutput describeSObjectAsJava(@PathParam("sobject") String sobject) {
+	public StreamingOutput describeSObjectAsJava(@PathParam("sobject") String sobject, final @QueryParam("package") String pkg) {
 		final DescribeSObject ds = targetdb.describeSObject(sobject);
 
 		return new StreamingOutput() {
 			public void write(OutputStream output) throws IOException, WebApplicationException {
 				PojoCodeGenerator gen = new PojoCodeGenerator();
-				gen.generateCode(output, ds, new ApiConfig().getApiVersion(), null);
+				gen.generateCode(output, ds, new ApiConfig().getApiVersion(), pkg);
 			}
 		};
 
