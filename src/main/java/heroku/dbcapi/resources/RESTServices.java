@@ -38,20 +38,28 @@ public class RESTServices {
 	// hack
 	static Map<String,ApiSession> apiKeyToAccessToken = new HashMap<String,ApiSession>();
 
-	@GET
-	@Path("/query")
-	@Produces("text/plain")
-	@SuppressWarnings("rawtypes")
-	public String query(@QueryParam("q") String q, @PathParam("database") String database, @HeaderParam("Authorization") String apiKey) {
-		System.out.println("query: "+q);
+	String apiKey;
+	String database;
+	ForceApi targetdb;
+
+	public RESTServices(@PathParam("database") String database, @HeaderParam("Authorization") String apiKey) {
+		this.database = database;
+		this.apiKey = apiKey;
 		ApiSession session = apiKeyToAccessToken.get(apiKey+":"+database);
 		if(session == null) {
 			String refreshToken = Svc.coredb.query("SELECT token__c FROM database__c WHERE name='"+database+"' AND developer__r.apiKey__c='"+apiKey+"'", DatabaseLink.class).getRecords().get(0).getToken();
 			session = Auth.refreshOauthTokenFlow(CONFIG, refreshToken);
 			apiKeyToAccessToken.put(apiKey+":"+database, session);
 		}
-		ForceApi targetdb = new ForceApi(new ApiConfig(), session);
-
+		targetdb = new ForceApi(new ApiConfig(), session);
+	}
+	
+	@GET
+	@Path("/query")
+	@Produces("text/plain")
+	@SuppressWarnings("rawtypes")
+	public String query(@QueryParam("q") String q) {
+		System.out.println("query: "+q);
 		QueryResult<Map> qr = targetdb.query(q, Map.class);
 		List<String> fields = new ArrayList<String>();
 		for(Object key : qr.getRecords().get(0).keySet()) {
@@ -60,19 +68,21 @@ public class RESTServices {
 			}
 		}
 		
-		TableFormatter tf = new SimpleTableFormatter(true).nextRow();
+		TableFormatter tf = new SimpleTableFormatter(false).nextRow();
 		for(String f : fields) {
-			tf.nextCell().addLine(f);
+			char[] underline = new char[f.length()];
+			for(int i=0;i<underline.length;i++) { underline[i] = '-'; }
+			tf.nextCell().addLine(f).addLine(new String(underline));
 		}
 		for(Map rec : qr.getRecords()) {
 			tf.nextRow();
 			for(String f : fields) {
-				tf.nextCell().addLine(rec.get(f).toString());
+				tf.nextCell().addLine(rec.get(f).toString()+"  ");
 			}
 		}
 		StringBuilder b = new StringBuilder();
 		for(String s : tf.getFormattedTable()) {
-			b.append(s+"\n");
+			b.append("    "+s+"\n");
 		}
 		return b.toString();
 	}
@@ -80,14 +90,7 @@ public class RESTServices {
 	@GET
 	@Path("/sobjects/")
 	@Produces("text/plain")
-	public StreamingOutput describeGlobal(@PathParam("database") String database, @HeaderParam("Authorization") String apiKey) {
-		ApiSession session = apiKeyToAccessToken.get(apiKey+":"+database);
-		if(session == null) {
-			String refreshToken = Svc.coredb.query("SELECT token__c FROM database__c WHERE name='"+database+"' AND developer__r.apiKey__c='"+apiKey+"'", DatabaseLink.class).getRecords().get(0).getToken();
-			session = Auth.refreshOauthTokenFlow(CONFIG, refreshToken);
-			apiKeyToAccessToken.put(apiKey+":"+database, session);
-		}
-		ForceApi targetdb = new ForceApi(new ApiConfig(), session);
+	public StreamingOutput describeGlobal() {
 		System.out.println("Getting info for "+database);
 		DescribeGlobal dg = targetdb.describeGlobal();
 		final TableFormatter tf = new SimpleTableFormatter(false).nextRow();
@@ -112,14 +115,7 @@ public class RESTServices {
 	@GET
 	@Path("/sobjects/{sobject}")
 	@Produces("text/plain")
-	public StreamingOutput describeSObject(@PathParam("database") String database, @PathParam("sobject") String sobject, @HeaderParam("Authorization") String apiKey) {
-		ApiSession session = apiKeyToAccessToken.get(apiKey+":"+database);
-		if(session == null) {
-			String refreshToken = Svc.coredb.query("SELECT token__c FROM database__c WHERE name='"+database+"' AND developer__r.apiKey__c='"+apiKey+"'", DatabaseLink.class).getRecords().get(0).getToken();
-			session = Auth.refreshOauthTokenFlow(CONFIG, refreshToken);
-			apiKeyToAccessToken.put(apiKey+":"+database, session);
-		}
-		ForceApi targetdb = new ForceApi(new ApiConfig(), session);
+	public StreamingOutput describeSObject(@PathParam("sobject") String sobject) {
 		System.out.println("Getting info for "+database);
 		final DescribeSObject ds = targetdb.describeSObject(sobject);
 		final TableFormatter tf = new SimpleTableFormatter(false).nextRow();
@@ -140,6 +136,21 @@ public class RESTServices {
 			}
 		};
 		
+	}
+
+	@GET
+	@Path("/sobjects/{sobject}")
+	@Produces("application/java")
+	public StreamingOutput describeSObjectAsJava(@PathParam("sobject") String sobject) {
+		final DescribeSObject ds = targetdb.describeSObject(sobject);
+
+		return new StreamingOutput() {
+			public void write(OutputStream output) throws IOException, WebApplicationException {
+				PojoCodeGenerator gen = new PojoCodeGenerator();
+				gen.generateCode(output, ds, new ApiConfig().getApiVersion(), null);
+			}
+		};
+
 	}
 
 }

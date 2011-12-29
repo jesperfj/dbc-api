@@ -82,7 +82,20 @@ query() {
 }
 
 describe() {
-	curl -s "$DBC_URL/data/$DATABASE/sobjects/$1" -H "Authorization: $APIKEY"
+	SOBJECT=$1
+	shift
+	while getopts "o:" opt; do
+		case $opt in
+			o)
+				FM=$OPTARG
+				;;
+		esac
+	done
+	if [ "$FM" = "java" ] ; then 
+		curl -s "$DBC_URL/data/$DATABASE/sobjects/$SOBJECT" -H "Authorization: $APIKEY" -H "Accept: application/java"
+	else
+		curl -s "$DBC_URL/data/$DATABASE/sobjects/$SOBJECT" -H "Authorization: $APIKEY" -H "Accept: text/plain"
+	fi
 }
 
 usage() {
