@@ -45,11 +45,11 @@ public class RESTServices {
 	public RESTServices(@PathParam("database") String database, @HeaderParam("Authorization") String apiKey) {
 		this.database = database;
 		this.apiKey = apiKey;
-		ApiSession session = apiKeyToAccessToken.get(apiKey+":"+database);
+		ApiSession session = Svc.cache.get(apiKey,database);
 		if(session == null) {
 			String refreshToken = Svc.coredb.query("SELECT token__c FROM database__c WHERE name='"+database+"' AND developer__r.apiKey__c='"+apiKey+"'", DatabaseLink.class).getRecords().get(0).getToken();
 			session = Auth.refreshOauthTokenFlow(CONFIG, refreshToken);
-			apiKeyToAccessToken.put(apiKey+":"+database, session);
+			Svc.cache.add(apiKey, database, session);
 		}
 		targetdb = new ForceApi(new ApiConfig(), session);
 	}

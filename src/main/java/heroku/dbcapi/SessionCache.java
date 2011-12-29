@@ -14,16 +14,23 @@ import net.spy.memcached.MemcachedClient;
 import net.spy.memcached.auth.AuthDescriptor;
 import net.spy.memcached.auth.PlainCallbackHandler;
 
-public class TokenCache {
+import com.force.api.ApiSession;
+
+public class SessionCache {
 
 	MemcachedClient mc;
-	Map<String,String> local;
+	Map<String,ApiSession> local;
 	
-	public TokenCache() {
-		if(Env.MEMCACHE_USERNAME!=null) {
-			AuthDescriptor ad = new AuthDescriptor(new String[]{"PLAIN"}, new PlainCallbackHandler(Env.MEMCACHE_USERNAME, Env.MEMCACHE_PASSWORD));
+	public SessionCache() {
+		if(Env.MEMCACHE_SERVERS!=null) {
 			ConnectionFactoryBuilder factoryBuilder = new ConnectionFactoryBuilder();
-			ConnectionFactory cf = factoryBuilder.setProtocol(Protocol.BINARY).setAuthDescriptor(ad).build();
+			ConnectionFactory cf = null;
+			if(Env.MEMCACHE_USERNAME!=null) {
+				AuthDescriptor ad = new AuthDescriptor(new String[]{"PLAIN"}, new PlainCallbackHandler(Env.MEMCACHE_USERNAME, Env.MEMCACHE_PASSWORD));
+				cf = factoryBuilder.setProtocol(Protocol.BINARY).setAuthDescriptor(ad).build();
+			} else {
+				cf = factoryBuilder.setProtocol(Protocol.BINARY).build();
+			}
 
 			try {
 				mc = new MemcachedClient(cf, Collections.singletonList(new InetSocketAddress(Env.MEMCACHE_SERVERS, 11211)));
@@ -32,23 +39,23 @@ public class TokenCache {
 				throw new RuntimeException(e);
 			}
 		} else {
-			local = new HashMap<String,String>();
+			local = new HashMap<String,ApiSession>();
 		}
 	}
 	
-	public String get(String apiKey, String database) {
+	public ApiSession get(String apiKey, String database) {
 		if(mc!=null) {
-			return (String) mc.get(apiKey+":"+database);
+			return (ApiSession) mc.get(apiKey+":"+database);
 		} else {
 			return local.get(apiKey+":"+database);
 		}
 	}
 	
-	public void add(String apiKey, String database, String accessToken) {
+	public void add(String apiKey, String database, ApiSession session) {
 		if(mc!=null) {
-			mc.add(apiKey+":"+database, 3600, accessToken);
+			mc.add(apiKey+":"+database, 3600, session);
 		} else {
-			local.put(apiKey+":"+database, accessToken);
+			local.put(apiKey+":"+database, session);
 		}
 	}
 	

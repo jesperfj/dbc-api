@@ -34,11 +34,11 @@ public class Admin {
 					
 					out.write(new String("Stats for "+addr+"\n\n").getBytes("UTF-8"));
 					TableFormatter tf = new SimpleTableFormatter(false).nextRow();
-					tf.nextCell().addLine("    Key").addLine("    ---");
+					tf.nextCell().addLine("    Key  ").addLine("    ---");
 					tf.nextCell().addLine("Value").addLine("-----");
 					for(String key : stats.get(addr).keySet()) {
 						tf.nextRow()
-							.nextCell().addLine("    "+key)
+							.nextCell().addLine("    "+key+"  ")
 							.nextCell().addLine(stats.get(addr).get(key));
 					}
 					
