@@ -30,9 +30,6 @@ import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.codehaus.jackson.annotate.JsonIgnoreProperties;
-import org.codehaus.jackson.annotate.JsonProperty;
-
 import com.force.api.ApiVersion;
 import com.force.api.DescribeSObject;
 import com.force.api.DescribeSObject.Field;
