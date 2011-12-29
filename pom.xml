@@ -118,7 +118,7 @@
 				<configuration>
 					<executable>ls</executable>
 					<arguments>
-						<argument>-a</argument> 
+						<argument>/app/tmp/repo.git/.cache/.m2/repository</argument> 
 					</arguments>
 				</configuration>
 			</plugin>
