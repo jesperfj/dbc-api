@@ -98,6 +98,10 @@ describe() {
 	fi
 }
 
+stats() {
+	curl -s "$DBC_URL/admin/cache"
+}
+
 usage() {
 	cat <<EOF
 Usage: $0 COMMAND [parameters]
@@ -129,6 +133,9 @@ case $CMD in
 	;;
 "use")
 	use "$@"
+	;;
+"stats")
+	stats "$@"
 	;;
 *)
 	usage

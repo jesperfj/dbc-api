@@ -35,6 +35,11 @@
 			<artifactId>inamik-tableformatter</artifactId>
 			<version>0.96.2</version>
 		</dependency>
+		<dependency>
+			<groupId>spy</groupId>
+			<artifactId>spymemcached</artifactId>
+			<version>2.7.3</version>
+		</dependency>
 	</dependencies>
 
 	<repositories>
@@ -50,6 +55,15 @@
 			<id>inamik-tableformatter</id>
 			<name>Github repo for tableformatter</name>
 			<url>http://jesperfj.github.com/inamik-tableformatter/repository/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>spy</id>
+			<name>Spy Repository</name>
+			<layout>default</layout>
+			<url>http://files.couchbase.com/maven2/</url>
 			<snapshots>
 				<enabled>false</enabled>
 			</snapshots>
@@ -102,14 +116,9 @@
 					</execution>
 				</executions>
 				<configuration>
-					<executable>pwd</executable>
-					<!-- optional -->
-					<workingDirectory>${env.CACHE_DIR}/.m2/repository</workingDirectory>
+					<executable>ls</executable>
 					<arguments>
-						<!-- 
-						<argument>.</argument>
-						<argument>-print</argument>
-						 -->
+						<argument>-a</argument> 
 					</arguments>
 				</configuration>
 			</plugin>
