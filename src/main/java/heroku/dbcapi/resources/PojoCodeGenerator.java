@@ -101,6 +101,9 @@ public class PojoCodeGenerator {
         
         write(out,NEWLINE);
 
+        // attributes
+        write(out,TAB + "private java.util.Map<String,String> attributes;" + NEWLINE);
+
         // add all private member variables
         for (Field field : describe.getAllFields()) {
             String fieldNameLower = 
@@ -146,6 +149,11 @@ public class PojoCodeGenerator {
             }
             write(out,TAB + "}" + NEWLINE + NEWLINE);
         }
+        
+        // attributes getter
+        write(out,TAB+"public java.util.Map<String,String> getAttributes() {"+NEWLINE);
+        write(out,TAB+TAB+"return attributes;"+NEWLINE);
+        write(out,TAB+"}"+NEWLINE);
 
         // add getters for every private member variable (no need to hide anything)
         for (Field field : describe.getAllFields()) {
