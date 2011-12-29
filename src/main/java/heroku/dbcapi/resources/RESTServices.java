@@ -94,11 +94,11 @@ public class RESTServices {
 		System.out.println("Getting info for "+database);
 		DescribeGlobal dg = targetdb.describeGlobal();
 		final TableFormatter tf = new SimpleTableFormatter(false).nextRow();
-		tf.nextCell().addLine("Name").addLine("----");
+		tf.nextCell().addLine("    Name  ").addLine("----");
 		tf.nextCell().addLine("Label").addLine("-----");
 		for (DescribeSObject ds : dg.getSObjects()) {
 			tf.nextRow()
-				.nextCell().addLine(ds.getName()+"  ")
+				.nextCell().addLine("    "+ds.getName()+"  ")
 				.nextCell().addLine(ds.getLabel());
 		}
 
@@ -119,11 +119,11 @@ public class RESTServices {
 		System.out.println("Getting info for "+database);
 		final DescribeSObject ds = targetdb.describeSObject(sobject);
 		final TableFormatter tf = new SimpleTableFormatter(false).nextRow();
-		tf.nextCell().addLine("Name").addLine("----");
+		tf.nextCell().addLine("    Name  ").addLine("----");
 		tf.nextCell().addLine("Type").addLine("----");
 		for (DescribeSObject.Field f : ds.getFields()) {
 			tf.nextRow()
-				.nextCell().addLine(f.getName()+"  ")
+				.nextCell().addLine("    "+f.getName()+"  ")
 				.nextCell().addLine(f.getType());
 		}
 
