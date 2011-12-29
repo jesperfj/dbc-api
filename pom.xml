@@ -102,12 +102,14 @@
 					</execution>
 				</executions>
 				<configuration>
-					<executable>find</executable>
+					<executable>pwd</executable>
 					<!-- optional -->
 					<workingDirectory>${env.CACHE}/.m2/repository</workingDirectory>
 					<arguments>
+						<!-- 
 						<argument>.</argument>
 						<argument>-print</argument>
+						 -->
 					</arguments>
 				</configuration>
 			</plugin>
