@@ -30,6 +30,9 @@ import java.io.OutputStream;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.codehaus.jackson.annotate.JsonIgnoreProperties;
+import org.codehaus.jackson.annotate.JsonProperty;
+
 import com.force.api.ApiVersion;
 import com.force.api.DescribeSObject;
 import com.force.api.DescribeSObject.Field;
@@ -77,6 +80,15 @@ public class PojoCodeGenerator {
         // package
         write(out,"package " + packageName + ";" + NEWLINE + NEWLINE);
 
+        // For now we are tightly coupled to Jackson. The main reason is Jackson cannot automatically
+        // de-serialize standard fields from the REST API because their names are capitalized.
+        // We need an annotation for each field to tell Jackson what to do. Wonder if there is any
+        // reason we cannot switch to un-capitalized variable names in the JSON output.
+
+        write(out, "import org.codehaus.jackson.annotate.JsonIgnoreProperties;"+NEWLINE);
+        write(out, "import org.codehaus.jackson.annotate.JsonProperty;"+NEWLINE + NEWLINE);
+        
+
         // class comment block
         write(out,"/**" + NEWLINE);
         write(out," * Generated from information gathered from /services/data/" + apiVersion + 
@@ -84,6 +96,7 @@ public class PojoCodeGenerator {
         write(out," */" + NEWLINE);
         
         // class begin
+        write(out,"@JsonIgnoreProperties(ignoreUnknown=true)"+NEWLINE);
         write(out,"public class " + className + " {" + NEWLINE);
 
         // constants
@@ -101,15 +114,13 @@ public class PojoCodeGenerator {
         
         write(out,NEWLINE);
 
-        // attributes
-        write(out,TAB + "private java.util.Map<String,String> attributes;" + NEWLINE);
-
         // add all private member variables
         for (Field field : describe.getAllFields()) {
             String fieldNameLower = 
                 field.getName().substring(0, 1).toLowerCase()
                     + field.getName().substring(1, field.getName().length());
 
+            write(out,TAB + "@JsonProperty(value=\""+field.getName()+"\")" + NEWLINE);
             // write private member
             write(out,TAB + "private " + getJavaType(field) + " " + fieldNameLower + ";" + NEWLINE);
             
@@ -150,11 +161,6 @@ public class PojoCodeGenerator {
             write(out,TAB + "}" + NEWLINE + NEWLINE);
         }
         
-        // attributes getter
-        write(out,TAB+"public java.util.Map<String,String> getAttributes() {"+NEWLINE);
-        write(out,TAB+TAB+"return attributes;"+NEWLINE);
-        write(out,TAB+"}"+NEWLINE);
-
         // add getters for every private member variable (no need to hide anything)
         for (Field field : describe.getAllFields()) {
             String fieldNameLower = field.getName().substring(0, 1).toLowerCase()
