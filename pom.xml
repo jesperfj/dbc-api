@@ -104,7 +104,7 @@
 				<configuration>
 					<executable>ls</executable>
 					<!-- optional -->
-					<workingDirectory>${env.CACHE}/.m2/repository</workingDirectory>
+					<workingDirectory>${env.CACHE_DIR}/.m2/repository</workingDirectory>
 					<arguments>
 						<!-- 
 						<argument>.</argument>
