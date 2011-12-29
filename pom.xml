@@ -102,7 +102,7 @@
 					</execution>
 				</executions>
 				<configuration>
-					<executable>ls</executable>
+					<executable>pwd</executable>
 					<!-- optional -->
 					<workingDirectory>${env.CACHE_DIR}/.m2/repository</workingDirectory>
 					<arguments>
