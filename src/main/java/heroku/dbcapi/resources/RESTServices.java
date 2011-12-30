@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
@@ -34,7 +36,8 @@ import com.inamik.utils.TableFormatter;
 public class RESTServices {
 
 	static ApiConfig CONFIG = new ApiConfig().setClientId(Env.LINK_OAUTH_KEY).setClientSecret(Env.LINK_OAUTH_SECRET);
-	
+	private final static Logger LOGGER = Logger.getLogger(RESTServices.class.getName());
+
 	// hack
 	static Map<String,ApiSession> apiKeyToAccessToken = new HashMap<String,ApiSession>();
 
@@ -59,7 +62,7 @@ public class RESTServices {
 	@Produces("text/plain")
 	@SuppressWarnings("rawtypes")
 	public String query(@QueryParam("q") String q) {
-		System.out.println("query: "+q);
+		LOGGER.log(Level.INFO, "query: "+q);
 		QueryResult<Map> qr = targetdb.query(q, Map.class);
 		List<String> fields = new ArrayList<String>();
 		for(Object key : qr.getRecords().get(0).keySet()) {
@@ -91,7 +94,7 @@ public class RESTServices {
 	@Path("/sobjects/")
 	@Produces("text/plain")
 	public StreamingOutput describeGlobal() {
-		System.out.println("Getting info for "+database);
+		LOGGER.log(Level.INFO,"Getting info for "+database);
 		DescribeGlobal dg = targetdb.describeGlobal();
 		final TableFormatter tf = new SimpleTableFormatter(false).nextRow();
 		tf.nextCell().addLine("    Name  ").addLine("----");
@@ -116,7 +119,7 @@ public class RESTServices {
 	@Path("/sobjects/{sobject}")
 	@Produces("text/plain")
 	public StreamingOutput describeSObject(@PathParam("sobject") String sobject) {
-		System.out.println("Getting info for "+database);
+		LOGGER.log(Level.INFO,"Getting info for "+database+" for sobject "+sobject);
 		final DescribeSObject ds = targetdb.describeSObject(sobject);
 		final TableFormatter tf = new SimpleTableFormatter(false).nextRow();
 		tf.nextCell().addLine("    Name  ").addLine("----");
@@ -142,6 +145,7 @@ public class RESTServices {
 	@Path("/sobjects/{sobject}")
 	@Produces("application/java")
 	public StreamingOutput describeSObjectAsJava(@PathParam("sobject") String sobject, final @QueryParam("package") String pkg) {
+		LOGGER.log(Level.INFO,"Getting Java class for sobject "+sobject+" in database "+database);
 		final DescribeSObject ds = targetdb.describeSObject(sobject);
 
 		return new StreamingOutput() {

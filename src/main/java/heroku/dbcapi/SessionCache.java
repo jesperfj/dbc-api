@@ -6,6 +6,8 @@ import java.net.SocketAddress;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import net.spy.memcached.ConnectionFactory;
 import net.spy.memcached.ConnectionFactoryBuilder;
@@ -18,6 +20,8 @@ import com.force.api.ApiSession;
 
 public class SessionCache {
 
+	private final static Logger LOGGER = Logger.getLogger(SessionCache.class.getName());
+	
 	MemcachedClient mc;
 	Map<String,ApiSession> local;
 	
@@ -26,7 +30,9 @@ public class SessionCache {
 			ConnectionFactoryBuilder factoryBuilder = new ConnectionFactoryBuilder();
 			ConnectionFactory cf = null;
 			if(Env.MEMCACHE_USERNAME!=null) {
-				AuthDescriptor ad = new AuthDescriptor(new String[]{"PLAIN"}, new PlainCallbackHandler(Env.MEMCACHE_USERNAME, Env.MEMCACHE_PASSWORD));
+				AuthDescriptor ad = new AuthDescriptor(
+						new String[]{"PLAIN"}, 
+						new PlainCallbackHandler(Env.MEMCACHE_USERNAME, Env.MEMCACHE_PASSWORD));
 				cf = factoryBuilder.setProtocol(Protocol.BINARY).setAuthDescriptor(ad).build();
 			} else {
 				cf = factoryBuilder.setProtocol(Protocol.BINARY).build();
@@ -34,12 +40,13 @@ public class SessionCache {
 
 			try {
 				mc = new MemcachedClient(cf, Collections.singletonList(new InetSocketAddress(Env.MEMCACHE_SERVERS, 11211)));
-				mc.add("test", 0, "testData");
+				LOGGER.log(Level.INFO, "Configured Memcached");
 			} catch (IOException e) {
 				throw new RuntimeException(e);
 			}
 		} else {
 			local = new HashMap<String,ApiSession>();
+			LOGGER.log(Level.INFO, "No memcached found. Using a local hashmap instead");
 		}
 	}
 	
