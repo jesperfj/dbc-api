@@ -80,7 +80,19 @@ public class RESTServices {
 		for(Map rec : qr.getRecords()) {
 			tf.nextRow();
 			for(String f : fields) {
-				tf.nextCell().addLine(rec.get(f).toString()+"  ");
+				String val = null;
+				if (rec.get(f) instanceof Map) {
+					// relationship traversal
+					for(Object k : ((Map) rec.get(f)).keySet()) {
+						if(!k.equals("attributes")) {
+							val = ((Map) rec.get(f)).get(k).toString();
+							break;
+						}
+					}
+				} else {
+					val = rec.get(f)!=null ? rec.get(f).toString() : "";
+				}
+				tf.nextCell().addLine(val+"  ");
 			}
 		}
 		StringBuilder b = new StringBuilder();
