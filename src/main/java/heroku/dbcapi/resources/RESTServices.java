@@ -7,7 +7,6 @@ import heroku.dbcapi.Svc;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -37,9 +36,6 @@ public class RESTServices {
 
 	static ApiConfig CONFIG = new ApiConfig().setClientId(Env.LINK_OAUTH_KEY).setClientSecret(Env.LINK_OAUTH_SECRET);
 	private final static Logger LOGGER = Logger.getLogger(RESTServices.class.getName());
-
-	// hack
-	static Map<String,ApiSession> apiKeyToAccessToken = new HashMap<String,ApiSession>();
 
 	String apiKey;
 	String database;
