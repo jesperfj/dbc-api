@@ -105,7 +105,7 @@ public class RESTServices {
 		LOGGER.log(Level.INFO,"Getting info for "+database);
 		DescribeGlobal dg = targetdb.describeGlobal();
 		final TableFormatter tf = new SimpleTableFormatter(false).nextRow();
-		tf.nextCell().addLine("    Name  ").addLine("----");
+		tf.nextCell().addLine("    Name  ").addLine("    ----");
 		tf.nextCell().addLine("Label").addLine("-----");
 		for (DescribeSObject ds : dg.getSObjects()) {
 			tf.nextRow()
