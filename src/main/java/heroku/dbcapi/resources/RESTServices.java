@@ -130,7 +130,7 @@ public class RESTServices {
 		LOGGER.log(Level.INFO,"Getting info for "+database+" for sobject "+sobject);
 		final DescribeSObject ds = targetdb.describeSObject(sobject);
 		final TableFormatter tf = new SimpleTableFormatter(false).nextRow();
-		tf.nextCell().addLine("    Name  ").addLine("----");
+		tf.nextCell().addLine("    Name  ").addLine("    ----");
 		tf.nextCell().addLine("Type").addLine("----");
 		for (DescribeSObject.Field f : ds.getFields()) {
 			tf.nextRow()
